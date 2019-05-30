@@ -168,7 +168,28 @@ static PyObject *tree_get_root_node(Tree *self, void *payload) {
   return node_new_internal(ts_tree_root_node(self->tree));
 }
 
+static PyObject *tree_edit(Tree *self, PyObject *args) {
+  TSInputEdit ie;
+  int ok = PyArg_ParseTuple(args, "lll(ll)(ll)(ll)",
+          &ie.start_byte, &ie.old_end_byte, &ie.new_end_byte,
+          &ie.start_point.row, &ie.start_point.column,
+          &ie.old_end_point.row, &ie.old_end_point.column,
+          &ie.new_end_point.row, &ie.new_end_point.column);
+  if(!ok){ 
+    PyErr_SetString(PyExc_TypeError, "First argument to parse must be bytes");
+      return NULL;
+  }
+  ts_tree_edit(self->tree, &ie);
+  return Py_None;
+}
+
 static PyMethodDef tree_methods[] = {
+  {
+    .ml_name = "edit",
+    .ml_meth = (PyCFunction)tree_edit,
+    .ml_flags = METH_VARARGS,
+    .ml_doc = "Edit the syntax tree, which adjusts the ranges of its nodes so that they stay in sync with the code.",
+  },
   {NULL},
 };
 
@@ -267,6 +288,7 @@ static PyObject *parser_set_language(Parser *self, PyObject *arg) {
   ts_parser_set_language(self->parser, language);
   return Py_None;
 }
+
 
 static PyMethodDef parser_methods[] = {
   {
