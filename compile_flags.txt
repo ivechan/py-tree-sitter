@@ -1,0 +1,4 @@
+-I/usr/include/python3.6m
+-Itree_sitter/core/lib/include
+-Itree_sitter/core/lib/utf8proc
+-std=c99
